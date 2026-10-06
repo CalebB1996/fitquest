@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#05070f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FitQuest">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<title>FitQuest</title>
+<style>
+:root{--bg:#05070f;--panel:rgba(16,22,44,.78);--line:rgba(120,160,255,.18);--txt:#e8eeff;--mut:#8b97b8;--cy:#4fd1ff;--gold:#ffcf5a;--str:#ff7a45;--agi:#4fd1ff;--int:#b48cff;--bad:#ff4d6a;--good:#46e6a0}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+body{min-height:100vh;background:radial-gradient(1200px 600px at 80% -10%,#1b2a66 0,transparent 60%),radial-gradient(900px 500px at -10% 30%,#3a1459 0,transparent 55%),var(--bg);background-attachment:fixed;overscroll-behavior-y:none}
+#stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.star{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;opacity:.6;animation:tw 4s infinite}
+@keyframes tw{50%{opacity:.1}}
+#app{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:calc(10px + env(safe-area-inset-top)) 14px calc(90px + env(safe-area-inset-bottom))}
+.top{display:flex;align-items:center;justify-content:space-between;padding:6px 2px 2px}
+.logo{font-weight:900;letter-spacing:.24em;font-size:19px;background:linear-gradient(90deg,#fff,var(--cy));-webkit-background-clip:text;background-clip:text;color:transparent}
+.tr{display:flex;gap:8px;align-items:center}
+.chip{background:rgba(255,207,90,.12);border:1px solid rgba(255,207,90,.4);color:var(--gold);padding:6px 11px;border-radius:99px;font-weight:800;font-size:14px}
+.gear{background:rgba(255,255,255,.07);border:1px solid var(--line);color:var(--txt);width:36px;height:36px;border-radius:50%;font-size:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;margin:12px 0;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+h2{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--mut);margin:0 0 10px;font-weight:800}
+h3{margin:0;font-size:16px}
+small,.mut{color:var(--mut)}
+.btn{border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--txt);padding:12px 14px;border-radius:12px;font:inherit;font-weight:800;cursor:pointer}
+.btn.primary{background:linear-gradient(135deg,#2a8cff,#4fd1ff);color:#04101f;border:0}
+.btn.gold{background:linear-gradient(135deg,#e0a82a,#ffcf5a);color:#2a1b00;border:0}
+.btn.danger{background:rgba(255,77,106,.15);border-color:rgba(255,77,106,.5);color:#ff8fa2}
+.btn.sm{padding:8px 11px;font-size:13px;border-radius:10px}
+.btn.block{width:100%}
+.btn[disabled]{opacity:.45}
+.bar{height:11px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:99px;transition:width .5s}
+.lbl{display:flex;justify-content:space-between;font-size:12px;color:var(--mut);margin:9px 0 4px}
+.lbl b{color:var(--txt)}
+.nm{font-weight:900;font-size:19px;white-space:nowrap}
+.cls{color:var(--cy);font-size:13px;font-weight:700}
+.stage{position:relative;aspect-ratio:1/.92;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:var(--bd,#070b18)}
+.sglow{position:absolute;left:50%;top:47%;width:82%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,var(--aura) 0,transparent 68%);opacity:.38;filter:blur(8px);animation:gl 4s ease-in-out infinite}
+@keyframes gl{50%{opacity:.58;transform:translate(-50%,-50%) scale(1.07)}}
+.emblem{position:absolute;left:50%;top:47%;width:64%;transform:translate(-50%,-50%);filter:drop-shadow(0 0 16px var(--aura)) drop-shadow(0 8px 14px rgba(0,0,0,.6));animation:fl 4.5s ease-in-out infinite;user-select:none;-webkit-user-drag:none;pointer-events:none}
+@keyframes fl{50%{transform:translate(-50%,-53%)}}
+.stage .sp{position:absolute;bottom:-6px;width:3px;height:3px;border-radius:50%;background:var(--aura);box-shadow:0 0 6px var(--aura);opacity:0;animation:up 4s linear infinite}
+@keyframes up{0%{transform:translateY(0);opacity:0}15%{opacity:.9}100%{transform:translateY(-330px);opacity:0}}
+.hud{position:absolute;left:12px;top:10px;z-index:2;pointer-events:none;text-shadow:0 2px 10px #000}
+.rname{position:absolute;left:0;right:0;bottom:10px;text-align:center;font-weight:900;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);text-shadow:0 2px 10px #000;font-size:14px;z-index:2}
+.fr-steel{border:2px solid #9fb0cc}
+.fr-neon{border:2px solid var(--aura);box-shadow:0 0 18px var(--aura)}
+.fr-gold{border:2px solid #d4a72c;box-shadow:0 0 0 2px #5a420a,0 0 16px rgba(255,207,90,.45)}
+.fr-plasma{border:2px solid #4fd1ff;animation:pl 3s linear infinite}
+@keyframes pl{0%,100%{border-color:#4fd1ff;box-shadow:0 0 18px #4fd1ff}33%{border-color:#b48cff;box-shadow:0 0 18px #b48cff}66%{border-color:#ff4d6a;box-shadow:0 0 18px #ff4d6a}}
+.ladder{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin:12px 0 2px}
+.lad{text-align:center}.lad img{width:100%;display:block}.lad small{font-size:9px;display:block;color:var(--mut);letter-spacing:.02em}
+.lad.lock img{filter:grayscale(1) brightness(.55);opacity:.5}
+.lad.cur img{filter:drop-shadow(0 0 8px var(--gold))}.lad.cur small{color:var(--gold);font-weight:800}
+.sw{width:64px;height:64px;margin:0 auto;border-radius:14px;position:relative;overflow:hidden;border:1px solid var(--line)}
+.cel-emb{width:55%;max-width:200px;display:block;margin:0 auto 6px;filter:drop-shadow(0 0 20px var(--gold));animation:pop .6s ease-out}
+@keyframes pop{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.stat{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:12px;padding:9px 6px;text-align:center}
+.stat b{display:block;font-size:22px;line-height:1.1}
+.stat span{font-size:11px;letter-spacing:.14em;font-weight:800}
+.stat small{display:block;font-size:11px;margin-top:2px}
+.stat .bar{height:5px;margin-top:5px}
+.inv{display:flex;height:26px;border-radius:99px;overflow:hidden;border:1px solid var(--line);font-size:12px;font-weight:900}
+.inv i{display:flex;align-items:center;justify-content:center;font-style:normal;transition:width .6s;min-width:0;overflow:hidden;color:#04101f}
+.inv .fr{background:linear-gradient(90deg,#2a8cff,#4fd1ff)}
+.inv .en{background:linear-gradient(90deg,#ff4d6a,#b3203a);color:#fff}
+.invl{display:flex;justify-content:space-between;font-size:12px;margin-top:6px;color:var(--mut)}
+.evt{border-color:rgba(255,207,90,.55);box-shadow:0 0 22px rgba(255,207,90,.15);animation:pulse 2.4s infinite}
+@keyframes pulse{50%{box-shadow:0 0 30px rgba(255,207,90,.32)}}
+.evt .tag{color:var(--gold);font-weight:900;letter-spacing:.14em;font-size:11px}
+.qrow{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.qrow:first-of-type{border-top:0}
+.qi{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;background:rgba(255,255,255,.07);flex:none}
+.qm{flex:1;min-width:0}
+.qm b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qm small{display:block}
+.row2{display:flex;gap:6px}
+label{display:block;font-size:12px;color:var(--mut);margin:11px 0 5px;font-weight:700;letter-spacing:.04em}
+input,select,textarea{width:100%;padding:12px;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:10px;color:var(--txt);font:inherit;font-size:16px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--cy)}
+textarea{min-height:90px;font-size:13px;font-family:ui-monospace,Menlo,monospace}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:rgba(255,255,255,.06);border-radius:12px;padding:3px;gap:3px}
+.seg button{border:0;background:transparent;color:var(--mut);padding:9px;border-radius:9px;font:inherit;font-weight:800}
+.seg button.on{background:rgba(79,209,255,.18);color:var(--cy)}
+.types{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.types button{border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--txt);border-radius:12px;padding:10px 4px;font:inherit;text-align:center}
+.types button b{display:block;font-size:13px}
+.types button small{font-size:10px}
+.types button.on{border-width:2px}
+.pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}
+.pk{border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--txt);border-radius:12px;padding:9px 8px;font:inherit;text-align:left}
+.pk b{display:block;font-size:13px}
+.pk small{font-size:11px}
+.pk.on{border-color:var(--cy);background:rgba(79,209,255,.14)}
+.preview{margin-top:14px;padding:10px 12px;border-radius:12px;background:rgba(70,230,160,.08);border:1px solid rgba(70,230,160,.3);font-size:13px}
+.preview b{color:var(--good)}
+.items{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.item{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center}
+.item.eq{border-color:var(--good)}
+.item b{display:block;font-size:13px;margin:4px 0 2px}
+.ico{width:64px;height:64px}
+.price{color:var(--gold);font-weight:800;font-size:13px;margin-bottom:6px}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+.slots button{border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--txt);border-radius:12px;padding:8px 2px;font:inherit;font-size:11px;font-weight:800}
+.slots button.on{border-color:var(--cy);background:rgba(79,209,255,.14);color:var(--cy)}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.cal .dow{font-size:11px;color:var(--mut);padding:4px 0}
+.cal button{aspect-ratio:1/1;border:1px solid transparent;background:rgba(255,255,255,.04);color:var(--txt);border-radius:9px;font:inherit;font-size:13px;padding:2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.cal button.blank{visibility:hidden}
+.cal button.today{border-color:var(--cy)}
+.cal button.sel{background:rgba(79,209,255,.22)}
+.dots{display:flex;gap:2px;height:6px}
+.dot{width:6px;height:6px;border-radius:50%}
+.dot.miss{background:var(--bad)}
+.dot.plan{border:1.5px solid var(--gold);background:transparent}
+.cnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tile{text-align:center;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:12px;padding:10px 4px}
+.tile b{font-size:20px;display:block}
+.tile small{font-size:11px}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:5;background:rgba(6,9,20,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav div{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+nav button{border:0;background:none;color:var(--mut);padding:9px 0 8px;font:inherit;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+nav button span{display:block;font-size:20px;margin-bottom:1px;filter:grayscale(1) opacity(.7)}
+nav button.on{color:var(--cy)}
+nav button.on span{filter:none}
+#modal{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.65);display:none;align-items:flex-end;justify-content:center}
+#modal.open{display:flex}
+.sheet{width:100%;max-width:560px;max-height:92vh;overflow:auto;background:#0b1126;border:1px solid var(--line);border-radius:20px 20px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom))}
+.cele{text-align:center;padding:10px 0}
+.cele .big{font-size:30px;font-weight:900;letter-spacing:.14em;background:linear-gradient(90deg,var(--gold),#fff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cele p{margin:8px 0}
+#toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translate(-50%,20px);z-index:30;background:#101a3a;border:1px solid var(--cy);color:var(--txt);padding:11px 16px;border-radius:14px;font-weight:700;font-size:14px;max-width:92%;text-align:center;opacity:0;pointer-events:none;transition:.25s}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+#toast.bad{border-color:var(--bad)}
+.empty{color:var(--mut);text-align:center;padding:12px 0}
+.hint{font-size:12px;color:var(--mut);margin-top:6px}
+.codex td{padding:3px 8px 3px 0;font-size:12px}
+</style>
+</head>
+<body>
+<div id="stars"></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="3.5"/></filter><filter id="glowL" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="16"/></filter><linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".38"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs></svg>
+<div id="app">
+  <div class="top"><div class="logo">FITQUEST</div><div class="tr"><div class="chip">◈ <span id="credits">0</span></div><button class="gear" data-a="settings" aria-label="Settings">⚙︎</button></div></div>
+  <main id="view"></main>
+</div>
+<nav><div id="nav"></div></nav>
+<div id="modal"></div>
+<div id="toast"></div>
+<noscript>FitQuest needs JavaScript.</noscript>
+
+<script>
+(()=>{
+'use strict';
+/* ================= CONSTANTS (all game math is hardcoded here) ================= */
+const KEY='fitquest_v1';
+const QT={
+  combat:{name:'Combat Drills',stat:'STR',icon:'⚔️',color:'var(--str)',blurb:'Lifting / strength'},
+  obstacle:{name:'Obstacle Course',stat:'AGI',icon:'🏃',color:'var(--agi)',blurb:'Cardio / running'},
+  meditation:{name:'Meditation',stat:'INT',icon:'🧘',color:'var(--int)',blurb:'Stretch / yoga / mind'},
+  event:{name:'Skirmish',stat:null,icon:'☄️',color:'var(--gold)',blurb:'Random event'}
+};
+const RUNS={
+  easy:{id:'easy',name:'Easy Run',base:40},
+  tempo:{id:'tempo',name:'Tempo Run',base:55},
+  easylong:{id:'easylong',name:'Easy Long Run',base:70},
+  interval:{id:'interval',name:'Interval Run',base:85},
+  structlong:{id:'structlong',name:'Structured Long Run',base:100}
+};
+const LIFT_BASE=70;        // = Easy Long Run base
+const INT_BASE=40;         // = Easy Run base
+const MILE_EXP=10;         // bonus EXP per mile run
+const SET_EXP=2, SET_CAP=30;   // lifting bonus: 2 EXP/set, max +30
+const MIN_EXP_PER=5, MIN_CAP=20; // meditation bonus: +1 per 5 min, max +20
+const QUEST_CREDITS=10;
+const EVENT_EXP=50, EVENT_CREDITS=10;
+const TERR_DONE_BASE=3, TERR_EXP_DIV=50;   // friendly territory gained = 3 + floor(EXP/50)
+const TERR_MISS=5, TERR_EVENT_FAIL=10, TERR_EVENT_WIN=5;
+const HP_MISS=15, HP_EVENT_FAIL=20, HP_HEAL=10;
+const MED_ACTS=['Stretching','Yoga','Mindfulness','Breathwork'];
+const RANKS=[{name:'Recruit',at:0},{name:'Prospect',at:500},{name:'Centurion',at:1500},{name:'Vanguard',at:4000},{name:'Sentinel',at:9000},{name:'Titan',at:20000}];
+const RANK_IMG=['ranks/rank1.png','ranks/rank2.png','ranks/rank3.png','ranks/rank4.png','ranks/rank5.png','ranks/rank6.png'];
+const RANK_GLOW=['#6fc8ff','#6b7bff','#b48cff','#a46bff','#ff4d6a','#ffcf5a'];
+const EVENTS=[
+  {t:'Hostile Boarding Party',d:'Repel the boarders: 30 push-ups.',stat:'STR'},
+  {t:'Drop Pod Impact',d:'Brace for impact: 40 bodyweight squats.',stat:'STR'},
+  {t:'Marksman Alley',d:'Hold your cover: 2-minute plank.',stat:'STR'},
+  {t:'Swarm Outbreak',d:'Contain the spread: 20 burpees.',stat:'AGI'},
+  {t:'Hostile Pursuit',d:'Outrun the raiders: 10-minute jog or fast walk.',stat:'AGI'},
+  {t:'Canyon Sprint',d:'Cross the canyon: 8 × 20-second sprints or high-knees.',stat:'AGI'},
+  {t:'Distress Signal',d:'Re-center your mind: 5 minutes of breathing or mindfulness.',stat:'INT'},
+  {t:'Hacked Terminal',d:'Decrypt the node: 10 minutes of stretching or mobility.',stat:'INT'}
+];
+const EVENT_GAP_H=20, EVENT_WINDOW_H=20, EVENT_CHANCE=0.55;
+const ITEMS={
+  aura:[
+    {id:'a0',name:'Rank Glow',price:0,color:null},
+    {id:'a1',name:'Cyan Pulse',price:30,color:'#4fd1ff'},
+    {id:'a2',name:'Ember',price:60,color:'#ff7a45'},
+    {id:'a3',name:'Verdant',price:90,color:'#46e6a0'},
+    {id:'a4',name:'Solar Flare',price:150,color:'#ffcf5a'},
+    {id:'a5',name:'Void',price:220,color:'#b48cff'}],
+  frame:[
+    {id:'f0',name:'No Frame',price:0,style:'none'},
+    {id:'f1',name:'Steel Edge',price:40,style:'steel'},
+    {id:'f2',name:'Neon Edge',price:100,style:'neon'},
+    {id:'f3',name:'Gilded',price:180,style:'gold'},
+    {id:'f4',name:'Plasma',price:280,style:'plasma'}],
+  backdrop:[
+    {id:'b0',name:'Deep Space',price:0,bg:'radial-gradient(ellipse at 50% 40%,#16204a 0,#0a0f26 55%,#03050c 100%)'},
+    {id:'b1',name:'Nebula',price:50,bg:'radial-gradient(circle at 20% 25%,rgba(180,80,255,.45),transparent 50%),radial-gradient(circle at 80% 70%,rgba(60,120,255,.4),transparent 55%),#070816'},
+    {id:'b2',name:'Aurora',price:110,bg:'linear-gradient(160deg,#04141c 0%,#0b3b3a 40%,#1a2a66 75%,#070a1c 100%)'},
+    {id:'b3',name:'Red Giant',price:190,bg:'radial-gradient(circle at 50% 110%,rgba(255,90,40,.6),transparent 60%),#120707'},
+    {id:'b4',name:'Event Horizon',price:300,bg:'radial-gradient(circle at 50% 50%,#000 0,#000 18%,rgba(255,170,60,.5) 20%,transparent 42%),#05030a'}]
+};
+const SLOT_NAMES={aura:'Aura',frame:'Frame',backdrop:'Backdrop'};
+const SLOTS=Object.keys(ITEMS);
+
+/* ================= LEVEL MATH ================= */
+// EXP needed for level n -> n+1 is 100 + (n-1)*50  (L1->2 = 100, L2->3 = 150, ...)
+const cum=L=>100*(L-1)+25*(L-1)*(L-2);          // total EXP required to REACH level L
+const levelFromExp=x=>{let L=1;while(cum(L+1)<=x)L++;return L;};
+const rankIdx=x=>{let r=0;RANKS.forEach((k,i)=>{if(x>=k.at)r=i;});return r;};
+
+/* ================= HELPERS ================= */
+const $=s=>document.querySelector(s);
+const pad=n=>String(n).padStart(2,'0');
+const dstr=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const today=()=>dstr(new Date());
+const uid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const num=v=>{const n=parseFloat(v);return isFinite(n)&&n>0?n:0;};
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtDate=ds=>new Date(ds+'T00:00:00').toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+const fmtLeft=ms=>{const m=Math.max(0,Math.floor(ms/60000));return `${Math.floor(m/60)}h ${pad(m%60)}m`;};
+const bar=(p,c)=>`<div class="bar"><i style="width:${clamp(p,0,100)}%;background:${c}"></i></div>`;
+const addDays=(ds,n)=>{const [y,m,d]=ds.split('-').map(Number);return dstr(new Date(y,m-1,d+n));};
+function shade(hex,p){const n=parseInt(hex.slice(1),16);let r=n>>16,g=(n>>8)&255,b=n&255;const f=p<0?0:255,t=Math.abs(p);r=Math.round((f-r)*t+r);g=Math.round((f-g)*t+g);b=Math.round((f-b)*t+b);return `rgb(${r},${g},${b})`;}
+
+/* ================= STATE ================= */
+const defaults=()=>({
+  v:1,name:'Commander',totalExp:0,statExp:{STR:0,INT:0,AGI:0},credits:0,
+  hp:100,friendly:50,inv:['a0','f0','b0'],equipped:{aura:'a0',frame:'f0',backdrop:'b0'},
+  quests:[],event:null,lastEventAt:Date.now()-10*3600e3
+});
+let S=load();
+function load(){
+  const OLD_PRICES={w1:40,w2:100,w3:180,w4:300,h1:30,h2:80,h3:150,h4:250,c1:40,c2:100,c3:180,c4:300,b1:30,b2:70,b3:120,b4:200};
+  try{const raw=localStorage.getItem(KEY);if(raw){const p=JSON.parse(raw);const d=defaults();
+    const s=Object.assign(d,p);s.statExp=Object.assign(d.statExp,p.statExp||{});
+    if(!p.equipped||p.equipped.aura===undefined){
+      let refund=0;(p.inv||[]).forEach(id=>{refund+=OLD_PRICES[id]||0;});
+      s.credits=(p.credits||0)+refund;s.inv=['a0','f0','b0'];s.equipped={aura:'a0',frame:'f0',backdrop:'b0'};if(refund)s.refunded=refund;
+    }else{s.equipped=Object.assign(d.equipped,p.equipped);['a0','f0','b0'].forEach(i=>{if(!s.inv.includes(i))s.inv.push(i);});}
+    return s;}}catch(e){}
+  return defaults();
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+const maxHp=()=>100+(levelFromExp(S.totalExp)-1)*10;
+const statLv=k=>levelFromExp(S.statExp[k]);
+const statVal=k=>10+(statLv(k)-1)+(levelFromExp(S.totalExp)-1);
+const findItem=(slot,id)=>ITEMS[slot].find(i=>i.id===id)||ITEMS[slot][0];
+
+/* ================= EXP ================= */
+function calcExp(type,d){
+  if(type==='obstacle'){const r=RUNS[d.sub]||RUNS.easy;return r.base+Math.round(num(d.distance)*MILE_EXP);}
+  if(type==='combat')return LIFT_BASE+Math.min(Math.floor(num(d.sets))*SET_EXP,SET_CAP);
+  return INT_BASE+Math.min(Math.floor(num(d.minutes)/MIN_EXP_PER),MIN_CAP);
+}
+function applyGain(stat,exp){
+  const b={lv:levelFromExp(S.totalExp),rk:rankIdx(S.totalExp),st:statLv(stat)};
+  S.totalExp+=exp;S.statExp[stat]+=exp;
+  const a={lv:levelFromExp(S.totalExp),rk:rankIdx(S.totalExp),st:statLv(stat)};
+  const lines=[];let big=null;
+  if(a.lv>b.lv){big='LEVEL UP';lines.push(`You reached Level ${a.lv}! All core stats rise.`);}
+  if(a.st>b.st)lines.push(`${stat} is now ${statVal(stat)}`);
+  if(a.rk>b.rk){big='RANK UP';lines.push(`New rank: ${RANKS[a.rk].name}`);}
+  return {lines,big,rk:a.rk>b.rk?a.rk:null};
+}
+function heal(n){S.hp=clamp(S.hp+n,0,maxHp());}
+function hurt(n){S.hp=clamp(S.hp-n,0,maxHp());}
+function terr(n){S.friendly=clamp(S.friendly+n,0,100);}
+
+/* ================= QUESTS ================= */
+function newQuest(type,d,status,date){
+  return {id:uid(),date:date||d.date||today(),type,status,
+    sub:d.sub||(type==='meditation'?'Stretching':type==='obstacle'?'easy':''),
+    exercise:(d.exercise||'').trim(),sets:num(d.sets),reps:num(d.reps),minutes:num(d.minutes),
+    distance:num(d.distance),duration:num(d.duration),exp:0,credits:0};
+}
+function validate(type,d){
+  if(type==='obstacle'){if(!(num(d.distance)>0))return 'Enter the distance you ran';if(!(num(d.duration)>0))return 'Enter your run duration';}
+  return null;
+}
+function completeQuest(q,d){
+  if(d){q.sub=d.sub||q.sub;q.exercise=(d.exercise||q.exercise||'').trim();q.sets=num(d.sets);q.reps=num(d.reps);q.minutes=num(d.minutes);q.distance=num(d.distance);q.duration=num(d.duration);}
+  if(q.date>today())q.date=today();
+  q.status='done';q.exp=calcExp(q.type,q);q.credits=QUEST_CREDITS;
+  S.credits+=QUEST_CREDITS;
+  const gain=TERR_DONE_BASE+Math.floor(q.exp/TERR_EXP_DIV);
+  terr(gain);heal(HP_HEAL);
+  const r=applyGain(QT[q.type].stat,q.exp);
+  save();render(false);
+  celebrate(`+${q.exp} EXP · +${QUEST_CREDITS} ◈ · +${gain}% territory`,r);
+}
+function qSummary(q){
+  if(q.type==='obstacle'){let s=(RUNS[q.sub]||RUNS.easy).name;if(q.distance)s+=` · ${q.distance} mi`;if(q.status==='done'&&q.duration)s+=` · ${q.duration} min`;return s;}
+  if(q.type==='combat'){let s=q.exercise||'Strength session';if(q.sets)s+=` · ${q.sets}×${q.reps||'?'}`;if(q.minutes)s+=` · ${q.minutes} min`;return s;}
+  if(q.type==='meditation'){let s=q.sub||'Meditation';if(q.minutes)s+=` · ${q.minutes} min`;return s;}
+  return q.sub;
+}
+function processMissed(){
+  const t=today();let n=0;
+  S.quests.forEach(q=>{if(q.status==='planned'&&q.date<t){q.status='missed';n++;terr(-TERR_MISS);hurt(HP_MISS);}});
+  return n;
+}
+
+/* ================= EVENTS ================= */
+function spawnEvent(){
+  const e=EVENTS[Math.floor(Math.random()*EVENTS.length)];
+  S.event={id:uid(),title:e.t,desc:e.d,stat:e.stat,deadline:Date.now()+EVENT_WINDOW_H*3600e3};
+  S.lastEventAt=Date.now();
+}
+function processEvent(){
+  if(S.event&&Date.now()>S.event.deadline){
+    S.quests.push({id:uid(),date:today(),type:'event',sub:S.event.title,status:'missed',exp:0,credits:0});
+    terr(-TERR_EVENT_FAIL);hurt(HP_EVENT_FAIL);
+    const t=S.event.title;S.event=null;return t;
+  }
+  return null;
+}
+function maybeSpawn(){
+  if(!S.event&&Date.now()-S.lastEventAt>=EVENT_GAP_H*3600e3&&Math.random()<EVENT_CHANCE){spawnEvent();return true;}
+  return false;
+}
+function repelEvent(){
+  const e=S.event;if(!e)return;
+  S.quests.push({id:uid(),date:today(),type:'event',sub:e.title,status:'done',exp:EVENT_EXP,credits:EVENT_CREDITS});
+  S.credits+=EVENT_CREDITS;terr(TERR_EVENT_WIN);heal(HP_HEAL);
+  const r=applyGain(e.stat,EVENT_EXP);S.event=null;save();render(false);
+  celebrate(`Threat neutralized! +${EVENT_EXP} ${e.stat} EXP · +${EVENT_CREDITS} ◈ · +${TERR_EVENT_WIN}% territory`,r);
+}
+
+/* ================= RANK EMBLEM ================= */
+const glowOf=()=>{const a=findItem('aura',S.equipped.aura);return a.color||RANK_GLOW[rankIdx(S.totalExp)];};
+function stageHTML(hud){
+  const rk=rankIdx(S.totalExp),col=glowOf(),fr=findItem('frame',S.equipped.frame),bd=findItem('backdrop',S.equipped.backdrop);
+  let sp='';for(let i=0;i<14;i++)sp+=`<i class="sp" style="left:${(i*37+11)%96}%;animation-delay:${((i*43)%400)/100}s;animation-duration:${3+(i%4)}s"></i>`;
+  return `<div class="stage fr-${fr.style}" style="--aura:${col};--bd:${bd.bg}"><div class="sglow"></div>${sp}<img class="emblem" src="${RANK_IMG[rk]}" alt="${RANKS[rk].name} rank emblem">${hud?`<div class="hud"><div class="nm">${esc(S.name)}</div><div class="cls">Spartan · Level ${levelFromExp(S.totalExp)}</div></div>`:''}<div class="rname">${RANKS[rk].name}</div></div>`;
+}
+function ladderHTML(){
+  const rk=rankIdx(S.totalExp);
+  return `<div class="ladder">${RANK_IMG.map((u,i)=>`<div class="lad ${i<rk?'done':i===rk?'cur':'lock'}"><img src="${u}" alt="${RANKS[i].name}"><small>${RANKS[i].name}</small></div>`).join('')}</div>`;
+}
+function swatch(slot,it){
+  if(slot==='aura')return `<div class="sw" style="background:#070b18"><div style="position:absolute;inset:9px;border-radius:50%;filter:blur(3px);background:${it.color?`radial-gradient(circle,${it.color} 0,transparent 72%)`:'conic-gradient(#6fc8ff,#6b7bff,#b48cff,#ff4d6a,#ffcf5a,#6fc8ff)'}"></div></div>`;
+  if(slot==='frame')return `<div class="sw" style="background:#070b18"><div class="fr-${it.style}" style="--aura:${glowOf()};position:absolute;inset:11px;border-radius:9px;background:#0b1126;${it.style==='none'?'border:1px dashed #44507a':''}"></div></div>`;
+  return `<div class="sw" style="background:${it.bg}"></div>`;
+}
+/* ================= UI STATE ================= */
+const UI={tab:'home',mode:'log',qtype:'combat',form:{},shopSlot:'aura',gearSlot:'aura',cal:null};
+{const n=new Date();UI.cal={y:n.getFullYear(),m:n.getMonth(),sel:today()};}
+const TABS=[['home','🛰️','Base'],['quests','⚔️','Quests'],['shop','🛒','Shop'],['gear','🛡️','Gear'],['history','📅','Log']];
+
+/* ================= FORMS ================= */
+function fieldsHTML(type,F,mode){
+  const plan=mode==='plan';let h='';
+  if(type==='obstacle'){
+    const sub=F.sub||'easy';
+    h+=`<label>Run type</label><div class="pick">${Object.values(RUNS).map(r=>`<button type="button" class="pk ${r.id===sub?'on':''}" data-a="pick" data-v="${r.id}"><b>${r.name}</b><small>${r.base} EXP base</small></button>`).join('')}</div><input type="hidden" name="sub" value="${sub}">`;
+    h+=`<div class="grid2"><div><label>Distance (mi)${plan?' · optional':''}</label><input name="distance" type="number" inputmode="decimal" step="0.01" min="0" value="${esc(F.distance||'')}" placeholder="0.00"></div>`;
+    h+=plan?'<div></div>':`<div><label>Duration (min)</label><input name="duration" type="number" inputmode="decimal" step="0.1" min="0" value="${esc(F.duration||'')}" placeholder="0"></div>`;
+    h+='</div>';
+  }else if(type==='combat'){
+    h+=`<label>${plan?'Focus / exercise':'Exercise (optional)'}</label><input name="exercise" type="text" maxlength="60" value="${esc(F.exercise||'')}" placeholder="e.g. Back squats, Push day">`;
+    if(!plan)h+=`<div class="grid3"><div><label>Sets</label><input name="sets" type="number" inputmode="numeric" min="0" value="${esc(F.sets||'')}"></div><div><label>Reps</label><input name="reps" type="number" inputmode="numeric" min="0" value="${esc(F.reps||'')}"></div><div><label>Minutes</label><input name="minutes" type="number" inputmode="decimal" min="0" value="${esc(F.minutes||'')}"></div></div>`;
+  }else{
+    const sub=F.sub||MED_ACTS[0];
+    h+=`<label>Activity</label><div class="pick">${MED_ACTS.map(a=>`<button type="button" class="pk ${a===sub?'on':''}" data-a="pick" data-v="${a}"><b>${a}</b></button>`).join('')}</div><input type="hidden" name="sub" value="${sub}">`;
+    if(!plan)h+=`<label>Minutes</label><input name="minutes" type="number" inputmode="decimal" min="0" value="${esc(F.minutes||'')}" placeholder="0">`;
+  }
+  return h;
+}
+function previewHTML(type,d){
+  const exp=calcExp(type,d),st=QT[type].stat;let pace='';
+  if(type==='obstacle'&&num(d.distance)>0&&num(d.duration)>0){const p=num(d.duration)/num(d.distance);pace=` · pace ${Math.floor(p)}:${pad(Math.round((p%1)*60)%60)} /mi`;}
+  return `<b>+${exp} ${st} EXP</b> &amp; +${exp} Rank EXP · +${QUEST_CREDITS} ◈ · +${TERR_DONE_BASE+Math.floor(exp/TERR_EXP_DIV)}% territory${pace}`;
+}
+function readFields(root){const o={};root.querySelectorAll('[name]').forEach(el=>{o[el.name]=el.value;});return o;}
+function updatePreview(root){
+  const p=root.querySelector('.preview');if(!p)return;
+  p.innerHTML=previewHTML(root.dataset.type,readFields(root));
+}
+
+/* ================= VIEWS ================= */
+function homeView(){
+  const lv=levelFromExp(S.totalExp),base=cum(lv),nxt=cum(lv+1),rk=rankIdx(S.totalExp),r=RANKS[rk],nr=RANKS[rk+1],hpMax=maxHp();
+  const t=today(),todays=S.quests.filter(q=>q.status==='planned'&&q.date===t);
+  const fr=S.friendly,en=100-fr;
+  const hpc=S.hp/hpMax>.5?'var(--good)':S.hp/hpMax>.25?'var(--gold)':'var(--bad)';
+  const stat=(k,c)=>{const l=statLv(k),b=cum(l),n=cum(l+1);return `<div class="stat"><span style="color:${c}">${k}</span><b>${statVal(k)}</b><small>Lv ${l}</small>${bar((S.statExp[k]-b)/(n-b)*100,c)}</div>`;};
+  let h=`<div class="card">${stageHTML(true)}
+    <div class="lbl"><span>EXP</span><b>${S.totalExp-base} / ${nxt-base}</b></div>${bar((S.totalExp-base)/(nxt-base)*100,'linear-gradient(90deg,#2a8cff,#4fd1ff)')}
+    <div class="lbl"><span>Rank${nr?' → '+nr.name:''}</span><b>${nr?(S.totalExp-r.at)+' / '+(nr.at-r.at):'MAX'}</b></div>${bar(nr?(S.totalExp-r.at)/(nr.at-r.at)*100:100,'linear-gradient(90deg,#e0a82a,#ffcf5a)')}
+    <div class="lbl"><span>HP</span><b>${S.hp} / ${hpMax}</b></div>${bar(S.hp/hpMax*100,hpc)}
+    ${ladderHTML()}<div class="stats">${stat('STR','var(--str)')}${stat('AGI','var(--agi)')}${stat('INT','var(--int)')}</div></div>`;
+  h+=`<div class="card"><h2>Star System Control · Kepler Frontier</h2><div class="inv"><i class="fr" style="width:${fr}%">${fr>=12?fr+'%':''}</i><i class="en" style="width:${en}%">${en>=12?en+'%':''}</i></div>
+    <div class="invl"><span style="color:var(--cy)">Friendly ${fr}%</span><span>${fr>=70?'System secured':fr>=40?'Contested':fr>=20?'Under siege':'Falling!'}</span><span style="color:var(--bad)">Enemy ${en}%</span></div></div>`;
+  if(S.event){const e=S.event;h+=`<div class="card evt"><div class="tag">⚠ INCOMING THREAT · <span data-cd="${e.deadline}">${fmtLeft(e.deadline-Date.now())}</span> left</div><h3 style="margin:6px 0 2px">${esc(e.title)}</h3><div class="mut">${esc(e.desc)}</div><div class="hint">Reward: +${EVENT_EXP} ${e.stat} EXP · +${EVENT_CREDITS} ◈ · +${TERR_EVENT_WIN}% territory. Ignore it and the enemy takes ${TERR_EVENT_FAIL}%.</div><button class="btn gold block" style="margin-top:10px" data-a="repel">Threat neutralized ✓</button></div>`;}
+  h+=`<div class="card"><h2>Today's Quests</h2>`;
+  if(todays.length)h+=todays.map(q=>qRow(q,true)).join('');else h+=`<div class="empty">No quests planned for today.</div>`;
+  h+=`<div class="row2" style="margin-top:8px"><button class="btn primary" style="flex:1" data-a="tab" data-v="quests" data-mode="log">＋ Log workout</button><button class="btn" style="flex:1" data-a="tab" data-v="quests" data-mode="plan">Plan quest</button></div></div>`;
+  return h;
+}
+function qRow(q,allowDel){
+  const info=QT[q.type];
+  return `<div class="qrow"><div class="qi" style="color:${info.color}">${info.icon}</div><div class="qm"><b>${info.name}</b><small>${esc(qSummary(q))}${q.status==='planned'?' · '+fmtDate(q.date):''}</small></div><div class="row2"><button class="btn sm primary" data-a="complete" data-id="${q.id}">Complete</button>${allowDel?`<button class="btn sm danger" data-a="del" data-id="${q.id}" aria-label="Remove">✕</button>`:''}</div></div>`;
+}
+function questsView(){
+  const F=UI.form,type=UI.qtype,mode=UI.mode,t=today();
+  const upcoming=S.quests.filter(q=>q.status==='planned').sort((a,b)=>a.date<b.date?-1:1);
+  let h=`<div class="card"><div class="seg"><button class="${mode==='log'?'on':''}" data-a="mode" data-v="log">Log workout</button><button class="${mode==='plan'?'on':''}" data-a="mode" data-v="plan">Plan quest</button></div>
+  <form id="mainform" data-form data-type="${type}" onsubmit="return false">
+  <label>Quest type</label><div class="types">${['combat','obstacle','meditation'].map(k=>`<button type="button" class="${k===type?'on':''}" style="${k===type?'border-color:'+QT[k].color:''}" data-a="qtype" data-v="${k}"><span style="font-size:20px">${QT[k].icon}</span><b>${QT[k].name}</b><small>${QT[k].blurb}</small></button>`).join('')}</div>
+  <label>${mode==='plan'?'Date (today or later)':'Date'}</label><input type="date" name="date" value="${F.date||t}" ${mode==='plan'?`min="${t}"`:`max="${t}"`}>
+  ${fieldsHTML(type,F,mode)}
+  ${mode==='plan'?`<label>Repeat</label><select name="repeat">${[[1,'Just once'],[4,'Weekly for 4 weeks'],[8,'Weekly for 8 weeks'],[12,'Weekly for 12 weeks']].map(([v,l])=>`<option value="${v}" ${String(F.repeat||1)===String(v)?'selected':''}>${l}</option>`).join('')}</select>`:''}
+  <div class="preview">${previewHTML(type,F)}</div>
+  <button class="btn primary block" style="margin-top:14px" data-a="submit">${mode==='plan'?'Add to quest board':'Complete quest ✓'}</button></form></div>`;
+  h+=`<div class="card"><h2>Planned quests</h2>${upcoming.length?upcoming.map(q=>qRow(q,true)).join(''):'<div class="empty">Nothing planned. Missed plans let the enemy advance, so plan wisely.</div>'}</div>`;
+  h+=`<div class="card"><h2>Codex · EXP table</h2><table class="codex"><tr><td>Easy Run</td><td>40</td><td>Tempo Run</td><td>55</td></tr><tr><td>Easy Long Run</td><td>70</td><td>Interval Run</td><td>85</td></tr><tr><td>Structured Long</td><td>100</td><td>Lifting</td><td>70</td></tr><tr><td>Meditation</td><td>40</td><td>Run bonus</td><td>+10/mi</td></tr></table><div class="hint">Lifting +2/set (max +30). Meditation +1 per 5 min (max +20). Each quest earns ${QUEST_CREDITS} ◈.</div></div>`;
+  return h;
+}
+function shopView(){
+  const slot=UI.shopSlot;
+  let h=`<div class="card"><h2>Emblem Shop · ◈ ${S.credits}</h2><div class="slots">${SLOTS.map(s=>`<button class="${s===slot?'on':''}" data-a="shopslot" data-v="${s}">${SLOT_NAMES[s]}</button>`).join('')}</div><div class="items">`;
+  h+=ITEMS[slot].map(it=>{const own=S.inv.includes(it.id),eq=S.equipped[slot]===it.id;
+    let btn;if(eq)btn=`<button class="btn sm block" disabled>Equipped</button>`;else if(own)btn=`<button class="btn sm block" data-a="equip" data-slot="${slot}" data-id="${it.id}">Equip</button>`;else btn=`<button class="btn sm gold block" data-a="buy" data-slot="${slot}" data-id="${it.id}" ${S.credits<it.price?'style="opacity:.55"':''}>Buy</button>`;
+    return `<div class="item ${eq?'eq':''}">${swatch(slot,it)}<b>${it.name}</b><div class="price">${own?'Owned':'◈ '+it.price}</div>${btn}</div>`;}).join('');
+  return h+'</div></div>';
+}
+function gearView(){
+  const slot=UI.gearSlot;
+  let h=`<div class="card">${stageHTML(false)}<div class="slots" style="margin-top:12px">${SLOTS.map(s=>`<button class="${s===slot?'on':''}" data-a="gearslot" data-v="${s}">${SLOT_NAMES[s]}<br><span style="font-weight:600;color:var(--mut)">${esc(findItem(s,S.equipped[s]).name.split(' ')[0])}</span></button>`).join('')}</div>`;
+  const owned=ITEMS[slot].filter(i=>S.inv.includes(i.id));
+  h+=`<h2>${SLOT_NAMES[slot]} slot · ${owned.length}/${ITEMS[slot].length} owned</h2><div class="items">`;
+  h+=owned.map(it=>{const eq=S.equipped[slot]===it.id;return `<div class="item ${eq?'eq':''}">${swatch(slot,it)}<b>${it.name}</b>${eq?'<button class="btn sm block" disabled>Equipped</button>':`<button class="btn sm block" data-a="equip" data-slot="${slot}" data-id="${it.id}">Equip</button>`}</div>`;}).join('');
+  return h+'</div></div>';
+}
+function streak(){
+  const days=new Set(S.quests.filter(q=>q.status==='done').map(q=>q.date));let d=today();if(!days.has(d))d=addDays(d,-1);let n=0;while(days.has(d)){n++;d=addDays(d,-1);}return n;
+}
+function historyView(){
+  const {y,m,sel}=UI.cal,first=new Date(y,m,1),days=new Date(y,m+1,0).getDate(),t=today();
+  const title=first.toLocaleDateString(undefined,{month:'long',year:'numeric'});
+  let cells='';['S','M','T','W','T','F','S'].forEach(d=>cells+=`<div class="dow">${d}</div>`);
+  for(let i=0;i<first.getDay();i++)cells+='<button class="blank"></button>';
+  for(let d=1;d<=days;d++){
+    const ds=`${y}-${pad(m+1)}-${pad(d)}`,qs=S.quests.filter(q=>q.date===ds);
+    const dots=qs.slice(0,4).map(q=>q.status==='missed'?'<i class="dot miss"></i>':q.status==='planned'?'<i class="dot plan"></i>':`<i class="dot" style="background:${QT[q.type].color}"></i>`).join('');
+    cells+=`<button class="${ds===t?'today':''} ${ds===sel?'sel':''}" data-a="calsel" data-d="${ds}">${d}<span class="dots">${dots}</span></button>`;
+  }
+  const done=S.quests.filter(q=>q.status==='done');
+  let h=`<div class="tiles"><div class="tile"><b>${done.length}</b><small>Quests done</small></div><div class="tile"><b>${S.totalExp}</b><small>Total EXP</small></div><div class="tile"><b>${streak()}</b><small>Day streak</small></div></div>
+  <div class="card"><div class="cnav"><button class="btn sm" data-a="calnav" data-v="-1">‹</button><h3>${title}</h3><button class="btn sm" data-a="calnav" data-v="1">›</button></div><div class="cal">${cells}</div>
+  <div class="hint">● completed · <span style="color:var(--bad)">●</span> missed · <span style="color:var(--gold)">○</span> planned</div></div>`;
+  const dq=S.quests.filter(q=>q.date===sel);
+  h+=`<div class="card"><h2>${fmtDate(sel)}</h2>${dq.length?dq.map(q=>{const i=QT[q.type];return `<div class="qrow"><div class="qi" style="color:${i.color}">${i.icon}</div><div class="qm"><b>${i.name}</b><small>${esc(qSummary(q))}</small></div><div style="text-align:right;font-size:12px;font-weight:800;color:${q.status==='done'?'var(--good)':q.status==='missed'?'var(--bad)':'var(--gold)'}">${q.status==='done'?'+'+q.exp+' EXP':q.status==='missed'?'MISSED':'PLANNED'}</div></div>`;}).join(''):'<div class="empty">No quests this day.</div>'}</div>`;
+  return h;
+}
+const VIEWS={home:homeView,quests:questsView,shop:shopView,gear:gearView,history:historyView};
+
+/* ================= RENDER ================= */
+function render(snap){
+  if(snap!==false){const f=$('#mainform');if(f)UI.form=readFields(f);}
+  $('#credits').textContent=S.credits;
+  $('#view').innerHTML=VIEWS[UI.tab]();
+  $('#nav').innerHTML=TABS.map(([k,i,l])=>`<button class="${k===UI.tab?'on':''}" data-a="tab" data-v="${k}"><span>${i}</span>${l}</button>`).join('');
+}
+function modal(html){const m=$('#modal');m.innerHTML=`<div class="sheet">${html}</div>`;m.classList.add('open');}
+function closeModal(){const m=$('#modal');m.classList.remove('open');m.innerHTML='';}
+let toastT;
+function toast(t,kind){const e=$('#toast');e.textContent=t;e.className='show '+(kind||'');clearTimeout(toastT);toastT=setTimeout(()=>{e.className='';},3200);}
+function celebrate(line,r){
+  if(r&&r.big)modal(`<div class="cele">${r.rk!=null?`<img class="cel-emb" src="${RANK_IMG[r.rk]}" alt="">`:''}<div class="big">${r.big}</div>${r.lines.map(l=>`<p>${esc(l)}</p>`).join('')}<p class="mut">${esc(line)}</p><button class="btn primary block" style="margin-top:10px" data-a="close">Continue</button></div>`);
+  else toast(line+(r&&r.lines.length?' · '+r.lines.join(' · '):''));
+}
+
+/* ================= ACTIONS ================= */
+const A={
+  tab(d){const f=$('#mainform');if(f)UI.form=readFields(f);UI.tab=d.v;if(d.mode)UI.mode=d.mode;render(false);window.scrollTo(0,0);},
+  mode(d){UI.form=readFields($('#mainform'));UI.mode=d.v;render(false);},
+  qtype(d){UI.form=readFields($('#mainform'));delete UI.form.sub;UI.qtype=d.v;render(false);},
+  pick(d,el){const g=el.closest('.pick');g.querySelectorAll('.pk').forEach(b=>b.classList.remove('on'));el.classList.add('on');g.nextElementSibling.value=d.v;updatePreview(el.closest('[data-form]'));},
+  submit(){
+    const f=$('#mainform'),d=readFields(f),type=UI.qtype,t=today();
+    if(!d.date)return toast('Pick a date','bad');
+    if(UI.mode==='log'){
+      if(d.date>t)return toast('Future workouts go on the quest board: use Plan quest','bad');
+      const err=validate(type,d);if(err)return toast(err,'bad');
+      const q=newQuest(type,d,'planned');S.quests.push(q);UI.form={};completeQuest(q,d);
+    }else{
+      if(d.date<t)return toast('Planned quests must be today or later','bad');
+      const n=Math.max(1,parseInt(d.repeat)||1);
+      for(let i=0;i<n;i++)S.quests.push(newQuest(type,d,'planned',addDays(d.date,7*i)));
+      UI.form={};save();render(false);toast(n>1?`${n} quests added to the board`:'Quest added to the board');
+    }
+  },
+  complete(d){
+    const q=S.quests.find(x=>x.id===d.id);if(!q)return;
+    modal(`<h3 style="margin-bottom:4px">${QT[q.type].icon} ${QT[q.type].name}</h3><div class="mut">Enter your results to claim rewards.</div><form id="cform" data-form data-type="${q.type}" onsubmit="return false">${fieldsHTML(q.type,{sub:q.sub,exercise:q.exercise,sets:q.sets||'',reps:q.reps||'',minutes:q.minutes||'',distance:q.distance||'',duration:q.duration||''},'done')}<div class="preview">${previewHTML(q.type,q)}</div><div class="row2" style="margin-top:14px"><button class="btn" style="flex:1" data-a="close">Cancel</button><button class="btn primary" style="flex:2" data-a="confirm" data-id="${q.id}">Complete ✓</button></div></form>`);
+  },
+  confirm(d){
+    const q=S.quests.find(x=>x.id===d.id);if(!q)return;const v=readFields($('#cform'));
+    const err=validate(q.type,v);if(err)return toast(err,'bad');
+    closeModal();completeQuest(q,v);
+  },
+  del(d){if(!confirm('Remove this planned quest? (No penalty)'))return;S.quests=S.quests.filter(q=>q.id!==d.id);save();render();},
+  repel(){repelEvent();},
+  shopslot(d){UI.shopSlot=d.v;render();},
+  gearslot(d){UI.gearSlot=d.v;render();},
+  buy(d){const it=findItem(d.slot,d.id);if(S.inv.includes(it.id))return;if(S.credits<it.price)return toast(`Need ${it.price-S.credits} more ◈. Complete quests to earn credits.`,'bad');S.credits-=it.price;S.inv.push(it.id);S.equipped[d.slot]=it.id;save();render();toast(`Acquired & equipped ${it.name}`);},
+  equip(d){if(!S.inv.includes(d.id))return;S.equipped[d.slot]=d.id;save();render();},
+  calsel(d){UI.cal.sel=d.d;render();},
+  calnav(d){let {y,m}=UI.cal;m+=parseInt(d.v);if(m<0){m=11;y--;}if(m>11){m=0;y++;}UI.cal.y=y;UI.cal.m=m;render();},
+  close(){closeModal();},
+  settings(){
+    modal(`<h3>Settings</h3><label>Commander name</label><input id="setname" maxlength="20" value="${esc(S.name)}"><button class="btn block" style="margin-top:8px" data-a="savename">Save name</button>
+    <label>Backup (copy this text somewhere safe)</label><textarea id="exp" readonly>${esc(JSON.stringify(S))}</textarea>
+    <label>Restore from backup (paste)</label><textarea id="imp" placeholder="Paste backup JSON here"></textarea><button class="btn block" style="margin-top:8px" data-a="import">Restore</button>
+    <div class="row2" style="margin-top:14px"><button class="btn" style="flex:1" data-a="testevent">Spawn test event</button><button class="btn danger" style="flex:1" data-a="reset">Reset all</button></div>
+    <button class="btn primary block" style="margin-top:12px" data-a="close">Done</button>`);
+  },
+  savename(){const v=$('#setname').value.trim();if(v){S.name=v.slice(0,20);save();render();toast('Name saved');}},
+  import(){try{const p=JSON.parse($('#imp').value);if(typeof p!=='object'||!p||!Array.isArray(p.quests))throw 0;localStorage.setItem(KEY,JSON.stringify(p));S=load();save();closeModal();render(false);toast('Backup restored');}catch(e){toast('That backup text is not valid','bad');}},
+  testevent(){spawnEvent();save();closeModal();UI.tab='home';render(false);toast('Test event spawned');},
+  reset(){if(confirm('Erase ALL FitQuest progress? This cannot be undone.')){localStorage.removeItem(KEY);S=defaults();UI.form={};save();closeModal();UI.tab='home';render(false);toast('Progress reset');}}
+};
+document.addEventListener('click',e=>{
+  if(e.target.id==='modal'){closeModal();return;}
+  const el=e.target.closest('[data-a]');if(!el)return;
+  const fn=A[el.dataset.a];if(fn){e.preventDefault();fn(el.dataset,el);}
+});
+document.addEventListener('input',e=>{const root=e.target.closest('[data-form]');if(root)updatePreview(root);});
+
+/* ================= LIFECYCLE ================= */
+function onShow(){
+  const missed=processMissed(),failed=processEvent(),spawned=maybeSpawn();
+  save();render();
+  const msgs=[];
+  if(missed)msgs.push(`${missed} missed quest${missed>1?'s':''}: the enemy gained ${missed*TERR_MISS}%`);
+  if(failed)msgs.push(`"${failed}" overran you: the enemy gained ${TERR_EVENT_FAIL}%`);
+  if(S.refunded){msgs.push(`Gear retired: ${S.refunded} ◈ refunded`);delete S.refunded;save();}
+  if(spawned)msgs.push('⚠ Incoming threat on the Base screen!');
+  if(msgs.length)toast(msgs.join(' · '),failed||missed?'bad':'');
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)onShow();});
+setInterval(()=>{
+  document.querySelectorAll('[data-cd]').forEach(el=>{el.textContent=fmtLeft(+el.dataset.cd-Date.now());});
+  if(S.event&&Date.now()>S.event.deadline){const f=processEvent();save();if(UI.tab!=='quests')render();toast(`"${f}" overran you: the enemy gained ${TERR_EVENT_FAIL}%`,'bad');}
+},30000);
+(()=>{const st=$('#stars');for(let i=0;i<60;i++){const s=document.createElement('div');s.className='star';s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';s.style.animationDelay=(Math.random()*4)+'s';s.style.opacity=.2+Math.random()*.6;st.appendChild(s);}})();
+onShow();
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+window.__FQ={get S(){return S;},calcExp,levelFromExp,cum,rankIdx,A,UI,render};
+})();
+</script>
+</body>
+</html>
